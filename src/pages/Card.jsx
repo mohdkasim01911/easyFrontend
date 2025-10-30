@@ -3,8 +3,16 @@ import Header from '../components/Header';
 import Footer from '../components/Footer';
 import { Link, useNavigate } from 'react-router-dom';
 import { IoIosArrowForward } from 'react-icons/io';
+import { useDispatch, useSelector } from 'react-redux';
 
 const Card = () => {
+
+
+    const dispatch = useDispatch();
+    const { userInfo } = useSelector(state => state.auth);
+
+
+
   const navigate = useNavigate()
     const card_products = [1, 2]
     const outOfStockProduct = [1, 2]

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { MdEmail } from "react-icons/md";
 import { IoMdPhonePortrait } from "react-icons/io";
 import { FaFacebookF, FaList, FaLock, FaUser } from "react-icons/fa";
@@ -6,7 +6,7 @@ import { FaTwitter } from "react-icons/fa6";
 import { FaLinkedin } from "react-icons/fa";
 import { FaGithub } from "react-icons/fa";
 import { IoMdArrowDropdown } from "react-icons/io";
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { FaHeart } from "react-icons/fa6";
 import { FaCartShopping } from "react-icons/fa6";
 import { FaPhoneAlt } from "react-icons/fa";
@@ -16,18 +16,41 @@ import { useDispatch, useSelector } from 'react-redux';
 const Header = () => {
 
 
+    const navigate = useNavigate()
+
+
     const {categorys} = useSelector(state => state.home)
+    const { userInfo } = useSelector(state => state.auth)
+    const { card_product_count } = useSelector(state => state.card)
 
     const {pathname} = useLocation()
 
     const [showShidebar, setShowShidebar] = useState(true);
     const [categoryShow, setCategoryShow] = useState(true);
-    const user = true
+    const user = false;
     const wishlist_count = 3
 
 
     const [searchValue, setSearchValue] = useState('')
     const [category, setCategory] = useState('')
+
+     const search = () =>{
+          navigate(`/products/search?category=${category}&&value=${searchValue}`)
+     }
+
+       const redirect_card_page = () => {
+        if (userInfo) {
+            navigate('/card')
+        } else {
+            navigate('/login')
+        }
+    }
+
+    useEffect(()=>{
+         if(!userInfo){
+            navigate('/login')
+         }
+    },[userInfo]);
 
     return (
         <div className='w-full bg-white'>
@@ -64,9 +87,9 @@ const Header = () => {
         </div>
 
         {
-            user ? <Link className='flex cursor-pointer justify-center items-center gap-2 text-sm text-black' to='/dashboard'>
+            userInfo ? <Link className='flex cursor-pointer justify-center items-center gap-2 text-sm text-black' to='/dashboard'>
                 <span> <FaUser/> </span>
-                <span>Kazi Ariyan </span>
+                <span>{userInfo.name}</span>
                  </Link> : <Link className='flex cursor-pointer justify-center items-center gap-2 text-sm text-black' to='/login'>
                 <span> <FaLock /> </span>
                 <span>Login </span>
@@ -130,14 +153,19 @@ const Header = () => {
                                 </div>
                         </div>
 
-                        <div className='relative flex justify-center items-center cursor-pointer w-[35px] h-[35px] rounded-full bg-[#e2e2e2]'>
+                        <div onClick={redirect_card_page} className='relative flex justify-center items-center cursor-pointer w-[35px] h-[35px] rounded-full bg-[#e2e2e2]'>
                             <span className='text-xl text-green-500'><FaCartShopping  /></span>
-            <div className='w-[20px] h-[20px] absolute bg-red-500 rounded-full text-white flex justify-center items-center -top-[3px] -right-[5px] '>
+           
                 {
-                    wishlist_count
+                    card_product_count !== 0 && <div className='w-[20px] h-[20px] absolute bg-red-500 rounded-full text-white flex justify-center items-center -top-[3px] -right-[5px] '>
+                        
+                        {
+                             card_product_count
+                        }
+
+                    </div>
                 }
 
-                                </div> 
                         </div> 
                     </div> 
                 </div> 
@@ -173,9 +201,9 @@ const Header = () => {
             </ul>
         </div>
         {
-            user ? <Link className='flex cursor-pointer justify-center items-center gap-2 text-sm text-black' to='/dashboard'>
+            userInfo ? <Link className='flex cursor-pointer justify-center items-center gap-2 text-sm text-black' to='/dashboard'>
                 <span> <FaUser/> </span>
-                <span>Kazi Ariyan </span>
+                <span>{userInfo.name}</span>
                  </Link> : <Link className='flex cursor-pointer justify-center items-center gap-2 text-sm text-black' to='/login'>
                 <span> <FaLock /> </span>
                 <span>Login </span>
@@ -252,7 +280,7 @@ const Header = () => {
                         return (
                          <li key={i} className='flex justify-start items-center gap-2 px-[24px] py-[6px]'>
                             <img src={c.image} className='w-[30px] h-[30px] rounded-full overflow-hidden'/>
-                            <Link className='text-sm block'>{c.name}</Link>
+                            <Link to={`/products?category=${c.name}`} className='text-sm block'>{c.name}</Link>
                          </li>
                         )
                     })
@@ -273,7 +301,7 @@ const Header = () => {
                         <select onChange={(e) => setCategory(e.target.value)} className='w-[150px] text-slate-600 font-semibold bg-transparent px-2 h-full outline-0 border-none' name="" id="">
                             <option value="">Select Category</option>
                             {
-                                categorys.map((c, i) => <option value={c}>
+                                categorys.map((c, i) => <option value={c.name}>
                                     {c.name}
                                 </option> )
                             }
@@ -281,7 +309,7 @@ const Header = () => {
                         </div>
                         <input className='w-full relative bg-transparent text-slate-500 outline-0 px-3 h-full' onChange={(e)=> setSearchValue(e.target.value)} type="text" name='' id='' placeholder='What do you need' />
 
-                           <button className='bg-[#059473] right-0 absolute px-8 h-full font-semibold uppercase text-white'>Search</button>
+                           <button onClick={search} className='bg-[#059473] right-0 absolute px-8 h-full font-semibold uppercase text-white'>Search</button>
                     </div> 
                 </div>
 
