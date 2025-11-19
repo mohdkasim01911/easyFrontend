@@ -15,12 +15,27 @@ export const add_to_card = createAsyncThunk(
    }
 )
 
+
 // end
+
+export const get_card_products = createAsyncThunk(
+   'card/get_card_products',
+   async (userId, { rejectWithValue, fulfillWithValue }) => {
+      try {
+         const { data } = await api.get(`/home/product/get-card-products/${userId}`)
+         console.log(data);
+         return fulfillWithValue(data);
+      } catch (error) {
+         return rejectWithValue(error.response.data)
+
+      }
+   }
+)
 
 export const cartReducer = createSlice({
     name: 'cart',
     initialState: {
-        cart_products: [],
+        card_products: [],
         card_product_count : 0,
         wishlist_count : 0,
         wishlist  : [],
@@ -28,7 +43,8 @@ export const cartReducer = createSlice({
         errorMessage: '',
         successMessage: '',
         shipping_fee : 0,
-        outofstock_products : [], 
+        outofstock_products : [],
+        buy_product_item : 0 
     },
     reducers: {
 
@@ -48,6 +64,15 @@ export const cartReducer = createSlice({
         .addCase(add_to_card.fulfilled, (state, { payload }) => { 
             state.successMessage = payload.message; 
             state.card_product_count = state.card_product_count + 1
+        })
+        
+        .addCase(get_card_products.fulfilled, (state, { payload }) => { 
+            state.card_products = payload.card_products; 
+            state.price = payload.price
+            state.card_product_count = payload.card_product_count
+            state.shipping_fee = payload.shipping_fee
+            state.outofstock_products = payload.outOfStockProduct
+            state.buy_product_item = payload.buy_product_item 
         })
        
 
